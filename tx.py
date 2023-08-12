@@ -161,8 +161,8 @@ class Tx:
     def verify(self):
         if self.fee() < 0:
             return False
-        for i n range(len(self.tx_ins)):
-            if not self.verify_input(i);
+        for i in range(len(self.tx_ins)):
+            if not self.verify_input(i):
                 return False
         return True
 
