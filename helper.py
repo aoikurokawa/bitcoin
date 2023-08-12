@@ -4,11 +4,10 @@ import hashlib
 
 from ripemd160 import ripemd160
 
-
-# tag::source1[]
+SIGHASH_ALL = 1
+SIGHASH_NONE = 2
+SIGHASH_SINGLE = 3
 BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
-# end::source1[]
-
 
 def run(test):
     suite = TestSuite()
@@ -27,7 +26,6 @@ def hash256(s):
     return hashlib.sha256(hashlib.sha256(s).digest()).digest()
 
 
-# tag::source2[]
 def encode_base58(s):
     count = 0
     for c in s:  # <1>
@@ -42,13 +40,10 @@ def encode_base58(s):
         num, mod = divmod(num, 58)
         result = BASE58_ALPHABET[mod] + result
     return prefix + result  # <3>
-# end::source2[]
 
 
-# tag::source3[]
 def encode_base58_checksum(b):
     return encode_base58(b + hash256(b)[:4])
-# end::source3[]
 
 
 def decode_base58(s):

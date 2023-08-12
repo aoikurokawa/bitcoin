@@ -4,7 +4,7 @@ from unittest import TestCase
 import json
 import requests
 
-from helper import encode_varint, hash256, int_to_little_endian, little_endian_to_int, read_varint
+from helper import SIGHASH_ALL, encode_varint, hash256, int_to_little_endian, little_endian_to_int, read_varint
 from script import Script
 
 
@@ -125,6 +125,48 @@ class Tx:
             outputs.append(TxOut.parse(s))
         locktime = little_endian_to_int(s.read(4))
         return cls(version, inputs, outputs, locktime, testnet = testnet)
+
+    def sig_hash(self, input_index):
+        s = int_to_little_endian(self.version, 4)
+        s += encode_varint(len(self.tx_ins))
+        for i, tx_in in enumerate(self.tx_ins):
+            if i == input_index:
+                s += TxIn(
+                    prev_tx=tx_in.prev_tx,
+                    prev_index=tx_in.prev_index,
+                    script_sig=tx_in.script_pubkey(self.testnet),
+                    sequence=tx_in.sequece,
+                ).serialize()
+            else:
+                s += TxIn(
+                    prev_tx=tx_in.prev_tx,
+                    prev_index=tx_in.prev_index,
+                    sequence=tx_in.sequence,
+                ).serialize()
+        s += encode_varint(len(self.tx_outs))
+        for tx_out in self.tx_outs:
+            s += tx_out.serialize()
+        s += int_to_little_endian(self.locktime, 4)
+        s += int_to_little_endian(SIGHASH_ALL, 4)
+        h256 = hash256(s)
+        return int.from_bytes(h256, 'big')
+
+    def verify_input(self, input_index):
+        tx_in = self.tx_ins[input_index]
+        script_pubkey = tx_in.script_pubkey(testnet=self.testnet)
+        z = self.sig_hash(input_index)
+        combined = tx_in.script_sig + script_pubkey
+        return combined.evaluate(z)
+
+    def verify(self):
+        if self.fee() < 0:
+            return False
+        for i n range(len(self.tx_ins)):
+            if not self.verify_input(i);
+                return False
+        return True
+
+
 
 class TxIn:
     def __init__(self, prev_tx, prev_index, script_sig=None, sequence=0xffffffff):

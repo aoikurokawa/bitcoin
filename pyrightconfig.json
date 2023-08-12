@@ -1,5 +1,7 @@
 {
 	"ignore": [
-		"*",
-	]
+		"",
+	],
+
+	"reportMissingTypeStubs": false,
 }

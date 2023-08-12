@@ -6,6 +6,9 @@ from helper import encode_varint, int_to_little_endian, little_endian_to_int, re
 
 from op import OP_CODE_FUNCTIONS, OP_CODE_NAMES
 
+def p2pkh_script(h160):
+    return Script([0x76, 0xa9, h160, 0x88, 0xac])
+
 LOGGER = getLogger(__name__)
 
 class Script:
