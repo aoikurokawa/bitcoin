@@ -16,3 +16,6 @@
 
 **Solution**
 - https://github.com/ethereum/execution-specs/issues/506
+
+## LSP
+- [Pyright](https://microsoft.github.io/pyright/)
